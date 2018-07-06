@@ -1,8 +1,7 @@
+:toc:
 = Istio with Kubernetes on AWS
 
-This repo shows how to get Istio BookInfo sample running on a Kubernetes cluster on AWS.
-
-== Create Kubernetes cluster
+This repo shows how to get Istio BookInfo sample running on a Kubernetes cluster on AWS. This is tested with Istio 0.8.
 
 == Kubernetes Cluster on AWS
 
@@ -84,3 +83,29 @@ https://github.com/kubernetes/kops[kops] is a commmunity-supported way to get a 
 	prometheus-586d95b8d9-mz9bm                 1/1       Running     0          4m
 	servicegraph-6d86dfc6cb-tbwwt               1/1       Running     0          4m
 
+== Deploy BookInfo 
+
+Read details about https://istio.io/docs/guides/bookinfo/[BookInfo application].
+
+. Deploy the application with manual sidecar injection for each pod:
+
+	kubectl apply -f <(istioctl kube-inject -f samples/bookinfo/kube/bookinfo.yaml)
+
+. Define the ingress for each application:
+
+	istioctl create -f samples/bookinfo/routing/bookinfo-gateway.yaml
+
+. Define environment variables:
+
+	export INGRESS_HOST=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+	export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http")].port}')
+	export SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="https")].port}')
+	export GATEWAY_URL=$INGRESS_HOST:$INGRESS_PORT
+
+. Access the application:
+
+	open http://${GATEWAY_URL}/productpage
++
+This will show the output:
++
+image:images/bookinfo1.png[]

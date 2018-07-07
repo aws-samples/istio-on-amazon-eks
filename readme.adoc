@@ -29,7 +29,7 @@ https://github.com/kubernetes/kops[kops] is a commmunity-supported way to get a 
 		--master-size m4.xlarge \
 		--node-count 3 \
 		--node-size m4.2xlarge \
-		--name cluster.k8s.local \
+		--name cluster.k8s.local
 
 . Edit cluster to enable admission controllers:
 
@@ -53,7 +53,7 @@ https://github.com/kubernetes/kops[kops] is a commmunity-supported way to get a 
 
 . Update the cluster:
 
-   kops update cluster --yes
+   kops update cluster cluster.k8s.local --yes
 
 == Install and Configure Istio
 
@@ -137,3 +137,6 @@ image:images/bookinfo3.png[]
 . Remove the rule:
 
 	istioctl delete -f samples/bookinfo/routing/route-rule-all-v1.yaml
+
+== Fault Injection
+

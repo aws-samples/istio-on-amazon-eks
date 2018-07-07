@@ -109,3 +109,31 @@ Read details about https://istio.io/docs/guides/bookinfo/[BookInfo application].
 This will show the output:
 +
 image:images/bookinfo1.png[]
++
+`reviews` service has 3 versions and so the output page will look diffeent with each refresh.
+
+== Content-based Routing
+
+Complete details at https://istio.io/docs/tasks/traffic-management/request-routing/.
+
+. Set the default version of `reviews` service to v1:
++
+	kubectl apply -f samples/bookinfo/routing/route-rule-all-v1.yaml
++
+Multiple refereshes of the page now shows output from the same `reviews` service (no rating stars).
++
+. Guide a specific user to `reviews:v2`:
+
+	istioctl replace -f samples/bookinfo/routing/route-rule-reviews-test-v2.yaml
+
+. Click on `Sign In` on top left, give `jason` as `User Name`, no password. The output page is refreshed:
++
+image:images/bookinfo2.png[]
++
+Click on `sign out`, `Sign In` again using `mike` and see the output:
++
+image:images/bookinfo3.png[]
++
+. Remove the rule:
+
+	istioctl delete -f samples/bookinfo/routing/route-rule-all-v1.yaml

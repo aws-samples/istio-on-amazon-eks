@@ -102,7 +102,7 @@ image:images/bookinfo1.png[]
 
 == Intelligent Routing
 
-This section demonstrates how to use various traffic management capabilities of an Istio service mesh. All details at https://istio.io/docs/examples/intelligent-routing/.
+This section demonstrates how to use various traffic management capabilities of Istio. All details at https://istio.io/docs/examples/intelligent-routing/.
 
 === Request Routing
 
@@ -121,10 +121,36 @@ This section demonstrates how to use various traffic management capabilities of 
 
 === Fault Injection
 
+==== Injecting an HTTP Delay Fault
+
 . Create a 7s delay between `reviews:v2` and `ratings` microservice for user `jason`:
 
 	kubectl apply -f samples/bookinfo/networking/virtual-service-ratings-test-delay.yaml
 
+. On the `/productpage`, log in as user `jason`:
++
+image::images/TODO.png[]
++
+This occurs because `productpage` to `reviews` is 6s total - 3s with + 1 retry. So `/productpage` times out prematurely and throws the error.
+. Fix is already available in `v3`. Migrate all the traffic to `v3`:
+
+	kubectl apply -f samples/bookinfo/networking/virtual-service-reviews-v3.yaml
+
+==== Injecting an HTTP Abort Fault
+
+Introduce HTTP abort to the `ratings` microservices for the test user `jason`.
+
+. Create an injection fault rule:
+
+	kubectl apply -f samples/bookinfo/networking/virtual-service-ratings-test-abort.yaml
+
+. On `/productpage`, log in as user `jason` to see the following output:
++
+image::images/TODO.png[]
++
+. Log out from user `jason` and the rating stars show up:
++
+image::images/TODO.png[]
 
 === Traffic Shifting
 
@@ -144,7 +170,7 @@ This section demonstrates how to use various traffic management capabilities of 
 
 == Security
 
-All details at https://istio.io/docs/tasks/security/.
+This section demonstrates how to secure Istio. All details at https://istio.io/docs/tasks/security/.
 
 === Authentication Policy
 
@@ -185,6 +211,10 @@ This section demonstrates how to obtain uniform metrics, logs, traces across dif
 === Generating a Service Graph
 
 === Logging with Fluentd
+
+== Canary Deployment
+
+Details at https://istio.io/blog/2017/0.1-canary/.
 
 == Cleanup
 

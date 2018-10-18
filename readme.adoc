@@ -1,7 +1,7 @@
 :toc:
 = Istio with Kubernetes on AWS
 
-This repo shows how to get https://istio.io/docs/examples/bookinfo/[Istio BookInfo sample] running on a Kubernetes cluster on AWS. We'll use Amazon EKS for the Kubernetes cluster. This is tested with https://github.com/istio/istio/releases/tag/1.0.2[Istio 1.0.2].
+This repo shows how to get https://istio.io/docs/examples/bookinfo/[Istio BookInfo sample] running on a Kubernetes cluster on AWS. We'll use http://aws.amazon.com/eks[Amazon EKS] for the Kubernetes cluster. This is tested with https://github.com/istio/istio/releases/tag/1.0.2[Istio 1.0.2].
 
 == Kubernetes Cluster on AWS
 
@@ -33,7 +33,7 @@ This repo shows how to get https://istio.io/docs/examples/bookinfo/[Istio BookIn
 		--set tracing.enabled=true \
 		--set grafana.enabled=true
 
-. Verify:
+. Verify services:
 
 	kubectl get pods -n istio-system
 	TODO
@@ -42,7 +42,9 @@ This repo shows how to get https://istio.io/docs/examples/bookinfo/[Istio BookIn
 
 	kubectl label namespace default istio-injection=enabled
 
-== Deploy BookInfo 
+== BookInfo
+
+=== Deploy BookInfo
 
 Read details about https://istio.io/docs/guides/bookinfo/[BookInfo application].
 
@@ -50,9 +52,26 @@ Read details about https://istio.io/docs/guides/bookinfo/[BookInfo application].
 
 	kubectl apply -f samples/bookinfo/kube/bookinfo.yaml
 
-. Define the ingress for each application:
+. Verify services:
 
-	istioctl create -f samples/bookinfo/routing/bookinfo-gateway.yaml
+	kubectl get svc
+
+. Verify pods:
+
+	kubectl get pods
+
+=== Define Ingress
+
+. Define the ingress gateway for the application:
+
+	kubectl apply -f samples/bookinfo/networking/bookinfo-gateway.yaml
+
+. Confirm gateway:
+
+	kubectl get gateway
+	TODO
+
+=== Access Application
 
 . Define environment variables:
 
@@ -64,14 +83,32 @@ Read details about https://istio.io/docs/guides/bookinfo/[BookInfo application].
 . Access the application:
 
 	open http://${GATEWAY_URL}/productpage
-+
+
 This will show the output:
-+
+
 image:images/bookinfo1.png[]
-+
+
 `reviews` service has 3 versions and so the output page will look diffeent with each refresh.
 
-== Content-based Routing
+=== Apply default destination rules
+
+. Define the destination rules:
+
+	kubectl apply -f samples/bookinfo/networking/destination-rule-all.yaml
+
+. Verify:
+
+	kubectl get destinationrules -o yaml
+
+== Intelligent Routing
+
+This section demonstrates how to use various traffic management capabilities of an Istio service mesh.
+
+=== Request Routing
+
+=== Fault Injection
+
+=== Traffic Shifting
 
 Complete details at https://istio.io/docs/tasks/traffic-management/request-routing/.
 
@@ -97,5 +134,9 @@ image:images/bookinfo3.png[]
 
 	istioctl delete -f samples/bookinfo/routing/route-rule-all-v1.yaml
 
-== Fault Injection
+== Cleanup
+
+. Delete routing rules and terminate application pods:
+
+	samples/bookinfo/platform/kube/cleanup.sh
 

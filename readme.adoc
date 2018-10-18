@@ -142,17 +142,49 @@ This section demonstrates how to use various traffic management capabilities of 
 
 === Health Checking of Istio Services
 
+== Security
+
+All details at https://istio.io/docs/tasks/security/.
+
+=== Authentication Policy
+
+=== Mutual TLS
+
+=== Authorization
+
+=== Plugging-in External CA Key and Certificate
+
+=== Citadel Health Checking
+
+=== Mutual TLS Migration
+
+=== Mutual TLS over HTTPS
+
+== Policies
+
+All details at https://istio.io/docs/tasks/policy-enforcement/.
+
+=== Enabling Rate Limits
+
+=== Denials and White/Black Listing
+
 == Telemetry
 
 This section demonstrates how to obtain uniform metrics, logs, traces across different services. All details at https://istio.io/docs/examples/telemetry/.
 
-=== Collecting metrics
+=== Distributed Tracing
 
-=== Querying metrics
+=== Collecting Metrics and Logs
 
-=== Distributed tracing
+=== Collecting Metrics for TCP Services
 
-=== Using the Istio dashboard
+=== Querying Metrics from Prometheus
+
+=== Visualizing Metrics with Grafana
+
+=== Generating a Service Graph
+
+=== Logging with Fluentd
 
 == Cleanup
 

@@ -152,7 +152,20 @@ image::images/TODO.png[]
 +
 image::images/TODO.png[]
 
+==== Cleanup
+
 === Traffic Shifting
+
+. Transfer 50% of the traffic from `reviews:v1` to `reviews:v3`:
+
+	kubectl apply -f samples/bookinfo/networking/virtual-service-reviews-50-v3.yaml
+
+. Refresh the `/productpage` in your browser and you now see red colored star ratings approximately 50% of the time.
+. Route 100% of the traffic to reviews:v3 by applying this virtual service:
+
+	kubectl apply -f samples/bookinfo/networking/virtual-service-reviews-v3.yaml
+
+. Refresh the `/productpage` in your browser and you now see red colored star ratings for each review.
 
 === Setting Request Timeouts
 

@@ -1,50 +1,54 @@
 :toc:
 = Istio with Kubernetes on AWS
 
-This repo shows how to get Istio BookInfo sample running on a Amazon EKS. This is tested with Istio 1.0.2.
+This repo shows how to get https://istio.io/docs/examples/bookinfo/[Istio BookInfo sample] running on a Kubernetes cluster on AWS. We'll use Amazon EKS for the Kubernetes cluster. This is tested with https://github.com/istio/istio/releases/tag/1.0.2[Istio 1.0.2].
 
 == Kubernetes Cluster on AWS
 
-Create Amazon EKS cluster using [eksctl](https://eksctl.io/):
+. Create Amazon EKS cluster using [eksctl](https://eksctl.io/):
 
 	brew install weaveworks/tap/eksctl
 	eksctl create cluster istio-eks --nodes 4
 
 == Install and Configure Istio
 
-. Install and configure:
+. Download:
 
 	curl -L https://github.com/istio/istio/releases/download/1.0.2/istio-1.0.2-osx.tar.gz | tar xzvf -
 	cd istio-1.0.2
 	export PATH=$PWD/bin:$PATH
-	kubectl apply -f install/kubernetes/istio-demo.yaml
+
+. Install Helm:
+
+	kubectl create -f install/kubernetes/helm/helm-service-account.yaml
+	helm init --service-account tiller
+
+. Install:
+
+	helm install \
+		--wait \
+		--name istio \
+		--namespace istio-system \
+		install/kubernetes/helm/istio \
+		--set tracing.enabled=true \
+		--set grafana.enabled=true
 
 . Verify:
 
 	kubectl get pods -n istio-system
-	NAME                                        READY     STATUS      RESTARTS   AGE
-	grafana-cd99bf478-59qmx                     1/1       Running     0          4m
-	istio-citadel-ff5696f6f-zkpzt               1/1       Running     0          4m
-	istio-cleanup-old-ca-6nmrg                  0/1       Completed   0          4m
-	istio-egressgateway-58d98d898c-bjd4f        1/1       Running     0          4m
-	istio-ingressgateway-6bc7c7c4bc-sc7s6       1/1       Running     0          4m
-	istio-mixer-post-install-g67rd              0/1       Completed   0          4m
-	istio-pilot-6c5c6b586c-nfwt9                2/2       Running     0          4m
-	istio-policy-5c7fbb4b9f-f2xtn               2/2       Running     0          4m
-	istio-sidecar-injector-dbd67c88d-j8882      1/1       Running     0          4m
-	istio-statsd-prom-bridge-6dbb7dcc7f-ms846   1/1       Running     0          4m
-	istio-telemetry-54b5bf4847-nlqjx            2/2       Running     0          4m
-	istio-tracing-67dbb5b89f-9zd5j              1/1       Running     0          4m
-	prometheus-586d95b8d9-mz9bm                 1/1       Running     0          4m
-	servicegraph-6d86dfc6cb-tbwwt               1/1       Running     0          4m
+	TODO
+
+. Enable Istio on `default` namespace:
+
+	kubectl label namespace default istio-injection=enabled
 
 == Deploy BookInfo 
 
 Read details about https://istio.io/docs/guides/bookinfo/[BookInfo application].
 
-. Deploy the application with manual sidecar injection for each pod:
+. Deploy the application with automatic sidecar injection for each pod:
 
-	kubectl apply -f <(istioctl kube-inject -f samples/bookinfo/kube/bookinfo.yaml)
+	kubectl apply -f samples/bookinfo/kube/bookinfo.yaml
 
 . Define the ingress for each application:
 

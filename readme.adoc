@@ -5,7 +5,7 @@ This repo shows how to get https://istio.io/docs/examples/bookinfo/[Istio BookIn
 
 == Kubernetes Cluster on AWS
 
-. Create Amazon EKS cluster using [eksctl](https://eksctl.io/):
+. Create Amazon EKS cluster using https://eksctl.io/[eksctl] CLI:
 
 	brew install weaveworks/tap/eksctl
 	eksctl create cluster istio-eks --nodes 4
@@ -170,6 +170,36 @@ image::images/TODO.png[]
 === Setting Request Timeouts
 
 === Control Ingress Traffic
+
+This section explains how to configure Istio to expose a service outside of the service mesh using an Istio Gateway instead of the usual Kubernetes Ingress Resource.
+
+. Deploy `httpbin` sample:
+
+	kubectl apply -f samples/httpbin/httpbin.yaml
+
+. Determine IP ingress and ports:
+
+	export INGRESS_HOST=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+	export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
+	export SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="https")].port}')
+
+. Create an Istio Gateway:
+
+	kubectl apply -f httpbin-ingress-gateway.yaml
+
+. Configure routes for the gateway:
+
+	kubectl apply -f httpbin-virtualservice.yaml
+
+. Access the `httpbin` service using curl:
+
+	curl -I -HHost:httpbin.example.com http://$INGRESS_HOST:$INGRESS_PORT/status/200
+	TODO
+
+. Access any other URL:
+
+	curl -I -HHost:httpbin.example.com http://$INGRESS_HOST:$INGRESS_PORT/headers
+
 
 === Securing Gateways with HTTPS
 

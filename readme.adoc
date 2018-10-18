@@ -1,66 +1,21 @@
 :toc:
 = Istio with Kubernetes on AWS
 
-This repo shows how to get Istio BookInfo sample running on a Kubernetes cluster on AWS. This is tested with Istio 0.8.
+This repo shows how to get Istio BookInfo sample running on a Amazon EKS. This is tested with Istio 1.0.2.
 
 == Kubernetes Cluster on AWS
 
-=== EKS
+Create Amazon EKS cluster using [eksctl](https://eksctl.io/):
 
-https://docs.aws.amazon.com/eks/latest/userguide/getting-started.html
-
-=== kops
-
-https://github.com/kubernetes/kops[kops] is a commmunity-supported way to get a Kubernetes cluster up and running on AWS.
-
-. Set AZs:
-
-	export AWS_AVAILABILITY_ZONES="$(aws ec2 describe-availability-zones \
-		--query 'AvailabilityZones[].ZoneName' \
-		--output text | \
-		awk -v OFS="," '$1=$1')"
-
-. Set state store: `export KOPS_STATE_STORE=s3://kubernetes-aws-io`
-. Create cluster:
-
-	kops create cluster \
-		--zones ${AWS_AVAILABILITY_ZONES} \
-		--master-count 1 \
-		--master-size m4.xlarge \
-		--node-count 3 \
-		--node-size m4.2xlarge \
-		--name cluster.k8s.local
-
-. Edit cluster to enable admission controllers:
-
-    kops edit cluster --name cluster.k8s.local
-
-. Add the following in the configuration file:
-
-    kubeAPIServer:
-      admissionControl:
-      - NamespaceLifecycle
-      - LimitRanger
-      - ServiceAccount
-      - PersistentVolumeLabel
-      - DefaultStorageClass
-      - DefaultTolerationSeconds
-      - MutatingAdmissionWebhook
-      - ValidatingAdmissionWebhook
-      - ResourceQuota
-      - NodeRestriction
-      - Priority
-
-. Update the cluster:
-
-   kops update cluster cluster.k8s.local --yes
+	brew install weaveworks/tap/eksctl
+	eksctl create cluster istio-eks --nodes 4
 
 == Install and Configure Istio
 
 . Install and configure:
 
-	curl -L https://github.com/istio/istio/releases/download/0.8.0/istio-0.8.0-osx.tar.gz | tar xzvf -
-	cd istio-0.8.0
+	curl -L https://github.com/istio/istio/releases/download/1.0.2/istio-1.0.2-osx.tar.gz | tar xzvf -
+	cd istio-1.0.2
 	export PATH=$PWD/bin:$PATH
 	kubectl apply -f install/kubernetes/istio-demo.yaml
 

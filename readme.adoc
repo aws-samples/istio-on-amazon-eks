@@ -102,7 +102,7 @@ image:images/bookinfo1.png[]
 
 == Intelligent Routing
 
-This section demonstrates how to use various traffic management capabilities of an Istio service mesh.
+This section demonstrates how to use various traffic management capabilities of an Istio service mesh. All details at https://istio.io/docs/examples/intelligent-routing/.
 
 === Request Routing
 
@@ -110,20 +110,21 @@ This section demonstrates how to use various traffic management capabilities of 
 
 	kubectl apply -f samples/bookinfo/networking/virtual-service-all-v1.yaml
 
-. Refresh http://$GATEWAY_URL/productpage. Note that the review part of the page displays with no rating stars.
+. Refresh http://$GATEWAY_URL/productpage. Multiple refereshes of the page now shows output from the same `reviews` service (no rating stars).
 . Route all traffic based on user identity:
 
 	kubectl apply -f samples/bookinfo/networking/virtual-service-reviews-test-v2.yaml
 
-. On the `/productpage`, log in as user `jason`. `end-user: jason` is sent as an HTTP header. `VirtualService` is configured to send traffic to `v2` if `end-user: jason` is included in the HTTP request header. Otherwise traffic is sent to `v1`.
+. On the `/productpage`, log in as user `jason`, no password. `end-user: jason` is sent as an HTTP header. `VirtualService` is configured to send traffic to `v2` if `end-user: jason` is included in the HTTP request header. Otherwise traffic is sent to `v1`.
 . Refresh the browser and star ratings appear next to each review.
 . Log out and log in as any other user. Refresh the browser and the stars disappear again.
-. Remove virtual services:
-
-	kubectl delete -f samples/bookinfo/networking/virtual-service-all-v1.yaml
-	kubectl delete -f samples/bookinfo/networking/virtual-service-reviews-test-v2.yaml
 
 === Fault Injection
+
+. Create a 7s delay between `reviews:v2` and `ratings` microservice for user `jason`:
+
+	kubectl apply -f samples/bookinfo/networking/virtual-service-ratings-test-delay.yaml
+
 
 === Traffic Shifting
 
@@ -141,31 +142,17 @@ This section demonstrates how to use various traffic management capabilities of 
 
 === Health Checking of Istio Services
 
-Complete details at https://istio.io/docs/tasks/traffic-management/request-routing/.
-
-. Set the default version of `reviews` service to v1:
-+
-	kubectl apply -f samples/bookinfo/routing/route-rule-all-v1.yaml
-+
-Multiple refereshes of the page now shows output from the same `reviews` service (no rating stars).
-+
-. Guide a specific user to `reviews:v2`:
-
-	istioctl replace -f samples/bookinfo/routing/route-rule-reviews-test-v2.yaml
-
-. Click on `Sign In` on top left, give `jason` as `User Name`, no password. The output page is refreshed:
-+
-image:images/bookinfo2.png[]
-+
-Click on `sign out`, `Sign In` again using `mike` and see the output:
-+
-image:images/bookinfo3.png[]
-+
-. Remove the rule:
-
-	istioctl delete -f samples/bookinfo/routing/route-rule-all-v1.yaml
-
 == Telemetry
+
+This section demonstrates how to obtain uniform metrics, logs, traces across different services. All details at https://istio.io/docs/examples/telemetry/.
+
+=== Collecting metrics
+
+=== Querying metrics
+
+=== Distributed tracing
+
+=== Using the Istio dashboard
 
 == Cleanup
 

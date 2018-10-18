@@ -106,9 +106,40 @@ This section demonstrates how to use various traffic management capabilities of 
 
 === Request Routing
 
+. Route all traffic to `v1` of each microservice:
+
+	kubectl apply -f samples/bookinfo/networking/virtual-service-all-v1.yaml
+
+. Refresh http://$GATEWAY_URL/productpage. Note that the review part of the page displays with no rating stars.
+. Route all traffic based on user identity:
+
+	kubectl apply -f samples/bookinfo/networking/virtual-service-reviews-test-v2.yaml
+
+. On the `/productpage`, log in as user `jason`. `end-user: jason` is sent as an HTTP header. `VirtualService` is configured to send traffic to `v2` if `end-user: jason` is included in the HTTP request header. Otherwise traffic is sent to `v1`.
+. Refresh the browser and star ratings appear next to each review.
+. Log out and log in as any other user. Refresh the browser and the stars disappear again.
+. Remove virtual services:
+
+	kubectl delete -f samples/bookinfo/networking/virtual-service-all-v1.yaml
+	kubectl delete -f samples/bookinfo/networking/virtual-service-reviews-test-v2.yaml
+
 === Fault Injection
 
 === Traffic Shifting
+
+=== Setting Request Timeouts
+
+=== Control Ingress Traffic
+
+=== Securing Gateways with HTTPS
+
+=== Control Egress Traffic
+
+=== Circuit Breaking
+
+=== Mirroring
+
+=== Health Checking of Istio Services
 
 Complete details at https://istio.io/docs/tasks/traffic-management/request-routing/.
 
@@ -133,6 +164,8 @@ image:images/bookinfo3.png[]
 . Remove the rule:
 
 	istioctl delete -f samples/bookinfo/routing/route-rule-all-v1.yaml
+
+== Telemetry
 
 == Cleanup
 

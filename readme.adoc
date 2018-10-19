@@ -200,8 +200,42 @@ This section explains how to configure Istio to expose a service outside of the 
 
 	curl -I -HHost:httpbin.example.com http://$INGRESS_HOST:$INGRESS_PORT/headers
 
+. Enable a wildcard `*` value for the host in Gateway:
+
+	kubectl apply -f httpbin-ingress-browser.yaml
+
+. Access $INGRESS_HOST:$INGRESS_PORT/headers in the browser.
+. Clean up:
+
+	kubectl delete gateway httpbin-gateway
+	kubectl delete virtualservice httpbin
+	kubectl delete --ignore-not-found=true -f samples/httpbin/httpbin.yaml
 
 === Securing Gateways with HTTPS
+
+. Generate certificates, select `y` for all the questions:
+
+	git clone https://github.com/nicholasjackson/mtls-go-example
+	cd mtls-go-example
+	./generate.sh httpbin.example.com abc123
+	mkdir ~/httpbin.example.com
+	mv 1_root 2_intermediate 3_application 4_client ~/httpbin.example.com
+
+. Create a Kubernetes Secret to hold the server’s certificate and private key:
+
+	kubectl create -n istio-system secret tls istio-ingressgateway-certs --key httpbin.example.com/3_application/private/httpbin.example.com.key.pem --cert ~/httpbin.example.com/3_application/certs/httpbin.example.com.cert.pem
+
+. Define a Gateway with a server section for port 443:
+
+	kubectl apply -f httpbin-gateway-server-cert.yaml
+
+. Configure routes for traffic entering via the Gateway:
+
+	kubectl apply -f httpbin-virtualservice-https.yaml
+
+. Access the `httpbin` service with HTTPS by sending an https request using curl to `$SECURE_INGRESS_PORT`:
+
+	curl -v -HHost:httpbin.example.com --resolve httpbin.example.com:$SECURE_INGRESS_PORT:$INGRESS_HOST --cacert ~/httpbin.example.com/2_intermediate/certs/ca-chain.cert.pem https://httpbin.example.com:$SECURE_INGRESS_PORT/status/418
 
 === Control Egress Traffic
 

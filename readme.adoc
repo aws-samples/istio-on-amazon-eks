@@ -239,6 +239,33 @@ This section explains how to configure Istio to expose a service outside of the 
 
 === Control Egress Traffic
 
+By default, Istio-enabled services cannot access URLs outside of the cluster. This section will explain how to configure Istio using `ServiceEntry` to expose external services to Istio-enabled clients. Specifically, the service will access httpbin.org.
+
+. Deploy `sleep` sample:
+
+	kubectl apply -f samples/sleep/sleep.yaml
+
+. Create a `ServiceEntry` to allow access to an external HTTP service:
+
+	kubectl apply -f httpbin-serviceentry.yaml
+
+. Create a `ServiceEntry` and `VirtualService` to allow access to an external HTTPS service:
+
+	kubectl apply -f httpbin-serviceentry-https.yaml
+
+. Exec into the pod:
+
+	export SOURCE_POD=$(kubectl get pod -l app=sleep -o jsonpath={.items..metadata.name})
+	kubectl exec -it $SOURCE_POD -c sleep bash
+
+. Make a request to the external HTTP service:
+
+	curl http://httpbin.org/headers
+
+. Make a request to the external HTTPS service:
+
+	curl https://www.google.com
+
 === Circuit Breaking
 
 === Mirroring

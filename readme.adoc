@@ -298,7 +298,44 @@ This sections shows how to configure circuit breaking for connections, requests,
 
 === Mirroring
 
-=== Health Checking of Istio Services
+. Deploy two versions of `httpbin` Deployment and one Service:
+
+	kubectl apply -f httpbin-mirroring-v1.yaml
+	kubectl apply -f httpbin-mirroring-v2.yaml
+	kubectl apply -f httpbin-mirroring-service.yaml
+
+. Start `sleep` service to generate load:
+
+	kubectl apply -f httpbin-mirroring-client.yaml
+
+. Route all traffic to `v1`:
+
+	kubectl apply -f httpbin-mirroring-v1-route.yaml
+
+. Send traffic to the service:
+
+	export SLEEP_POD=$(kubectl get pod -l app=sleep -o jsonpath={.items..metadata.name})
+	kubectl exec -it $SLEEP_POD -c sleep -- sh -c 'curl  http://httpbin:8080/headers' | python -m json.tool
+
+. Check the logs for `v1` and `v2`. There should be log entries for `v1` and none for `v2`:
+
+	export V1_POD=$(kubectl get pod -l app=httpbin,version=v1 -o jsonpath={.items..metadata.name})
+	kubectl logs -f $V1_POD -c httpbin
+	export V2_POD=$(kubectl get pod -l app=httpbin,version=v2 -o jsonpath={.items..metadata.name})
+	kubectl logs -f $V2_POD -c httpbin
+
+. Mirror traffic to `v2`:
+
+	kubectl apply -f httpbin-mirroring-to-v2.yaml
+
+. Send in traffic:
+
+	kubectl exec -it $SLEEP_POD -c sleep -- sh -c 'curl  http://httpbin:8080/headers' | python -m json.tool
+
+. Check the logs in `v1` and `v2`:
+
+	kubectl logs -f $V1_POD -c httpbin
+	kubectl logs -f $V2_POD -c httpbin
 
 == Security
 

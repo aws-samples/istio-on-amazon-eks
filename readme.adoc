@@ -268,6 +268,34 @@ By default, Istio-enabled services cannot access URLs outside of the cluster. Th
 
 === Circuit Breaking
 
+This sections shows how to configure circuit breaking for connections, requests, and outlier detection.
+
+. Create a destination rule to apply circuit breaking. These rules allow only one connection and request concurrently, anything more will trip the circuit:
+
+	kubectl apply -f httpbin-circuitbreaker.yaml
+
+. Create the client:
+
+	kubectl apply -f samples/httpbin/sample-client/fortio-deploy.yaml
+
+. Make a successful request:
+
+	FORTIO_POD=$(kubectl get pod | grep fortio | awk '{ print $1 }')
+	kubectl exec -it $FORTIO_POD  -c fortio /usr/local/bin/fortio -- load -curl  http://httpbin:8000/get
+
+. Call the service with two concurrent connections and send 20 requests:
+
+	kubectl exec -it $FORTIO_POD -c fortio /usr/local/bin/fortio -- load -c 2 -qps 0 -n 20 -loglevel Warning http://httpbin:8000/get
+
+. Increase the number of concurrent requests to 3:
+
+	kubectl exec -it $FORTIO_POD  -c fortio /usr/local/bin/fortio -- load -c 3 -qps 0 -n 20 -loglevel Warning http://httpbin:8000/get
+
+. Query `istio-proxy` to see stats:
+
+	kubectl exec -it $FORTIO_POD  -c istio-proxy  -- sh -c 'curl localhost:15000/stats' | grep httpbin | grep pending
+
+
 === Mirroring
 
 === Health Checking of Istio Services

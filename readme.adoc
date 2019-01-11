@@ -100,8 +100,7 @@ https://www.kiali.io/[Kiali] is a UI for Istio that can dynamically show the mes
 
 We use Kubernetes port forwarding to access Kiali via tunnel to our local host
 
-	kubectl -n istio-system port-forward \
-	  $(kubectl -n istio-system get pod -l app=kiali -o jsonpath='{.items[0].metadata.name}') 20001:20001 &
+	kubectl -n istio-system port-forward svc/kiali 20001:20001 &
 	open http://localhost:20001/console/      # Open Kiali in browser, OS/X only. 
 	
 Use _admin_/_admin_ as username/password. Once logged in, click on _Graph_ in the left navigation.

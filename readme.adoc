@@ -14,8 +14,8 @@ This repo shows how to get https://istio.io/docs/examples/bookinfo/[Istio BookIn
 
 . Download:
 
-	curl -L https://github.com/istio/istio/releases/download/1.0.2/istio-1.0.2-osx.tar.gz | tar xzvf -
-	cd istio-1.0.2
+	curl -L https://github.com/istio/istio/releases/download/1.0.5/istio-1.0.5-osx.tar.gz | tar xzvf -
+	cd istio-1.0.5
 	export PATH=$PWD/bin:$PATH
 
 . Install Helm:
@@ -31,6 +31,7 @@ This repo shows how to get https://istio.io/docs/examples/bookinfo/[Istio BookIn
 		--namespace istio-system \
 		install/kubernetes/helm/istio \
 		--set tracing.enabled=true \
+		--set kiali.enabled=true \
 		--set grafana.enabled=true
 
 . Verify services:
@@ -50,7 +51,7 @@ Read details about https://istio.io/docs/guides/bookinfo/[BookInfo application].
 
 . Deploy the application with automatic sidecar injection for each pod:
 
-	kubectl apply -f samples/bookinfo/kube/bookinfo.yaml
+	kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml
 
 . Verify services:
 
@@ -82,13 +83,33 @@ Read details about https://istio.io/docs/guides/bookinfo/[BookInfo application].
 
 . Access the application:
 
-	open http://${GATEWAY_URL}/productpage
+	echo "Accessing bookinfo at http://${GATEWAY_URL}/productpage"
+	open http://${GATEWAY_URL}/productpage    # Open browser, OS/X only. 
 
 This will show the output:
 
 image:images/bookinfo1.png[]
 
 `reviews` service has 3 versions and so the output page will look diffeent with each refresh.
+
+=== Visualise topology and traffic with Kiali
+
+https://www.kiali.io/[Kiali] is a UI for Istio that can dynamically show the mesh topology and traffic flows. Using Kiali will help you understanding the routing rules we are going to apply in the next section.
+
+. Accessing Kiali
+
+We use Kubernetes port forwarding to access Kiali via tunnel to our local host
+
+	kubectl -n istio-system port-forward svc/kiali 20001:20001 &
+	open http://localhost:20001/console/      # Open Kiali in browser, OS/X only. 
+	
+Use _admin_/_admin_ as username/password. Once logged in, click on _Graph_ in the left navigation.
+
+This will then show the graph like the following. Hit the bookinfo a few times to see how the traffic is visualised
+
+image:images/kiali.png[]
+
+
 
 === Apply default destination rules
 

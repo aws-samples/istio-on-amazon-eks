@@ -34,6 +34,9 @@ This repo shows how to get https://istio.io/docs/examples/bookinfo/[Istio BookIn
 		--set kiali.enabled=true \
 		--set grafana.enabled=true
 
+NOTE: If that step fails with "can not find tiller", check if you have a pre-existing ~/.helm directory from a
+a previous run. In that case you can try to remove it and run `helm init` from the previous step again.
+
 . Verify services:
 
 	kubectl get pods -n istio-system
